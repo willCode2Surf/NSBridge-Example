@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+	<head>
+		<title>NSBridge Is Awesome Easy</title>
+	</head>
+	<body>
+			<p>Your fresh Hybrid experience starts with the NSBridge!</p>
+            <p><a href="javascript:NSBridge.App.fireEvent('NSBnativeSheet', { msg: window.prompt(' Enter a body for your native sheet. ') });">Click Me to show a Native Action Sheet on the iOS</a></p>
+            <p><a href="javascript:NSBridge.App.fireEvent('NSBNotification',{ title: 'NSBWebView Alert!', content: 'This was requested by the NSBWebView over the NSBridge!' });">Click Me to create a Native Local Notification on the iOS</a></p>
+            <p><a href="javascript:NSBridge.App.fireEvent('NSBIOTest', { action: 'getfiles', path: 'www' });">Make a System.IO request to the Native iOS file system and see the results on this NSBWebView!</a></p>
+
+        <script src="js/nsbridge.js"></script>
+		<script>
+
+			window.onload = function(e) {
+
+                var ScreenDump = function DisplayToScreen(msg)
+                 {
+                    // keeping this MVC/MVVM client side framework agnostic for now but expect flavors of NSBridge for EmberJS and AngularJS soon
+                    var p = document.createElement('p');
+                    p.innerHTML = msg;
+                    document.getElementsByTagName('body')[0].appendChild(p);
+                 };
+
+                 // taking some control here and catching log requests, porting them to the native side         
+                console.log = function(msg) {
+                        NSBridge.API.info( msg );
+                 };
+
+                NSBridge.App.addEventListener('NSBLogger', function(data) {
+                    // will need to add a property to the data obj so that we can NOT post back to native OS on console.log since we are 
+                    // pumping it back.  no need for an endless loop ;)
+                    // for now, NSBLogger will just write to screen.
+                    console.log(data.Message);
+                    ScreenDump(data.Message);
+                });
+
+                console.log( 'client loaded loaded' );
+                NSBridge.API.info( 'log "loaded" call on native side' );
+                
+                NSBridge.API.info( 'Hello Native OS' );
+             
+				NSBridge.App.addEventListener('NSBWebEvent', function(data) {
+					console.log('NSBWebEvent Callback:' + data);
+                    var p = document.createElement('p');
+                    p.innerHTML = msg;
+                    document.getElementsByTagName('body')[0].appendChild(p);
+				});
+			 
+			};			
+		</script>
+	</body>
+</html>
